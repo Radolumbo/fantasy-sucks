@@ -50,6 +50,9 @@ def initialize_people(league):
 class LeagueCalculator(object):
     """Does stuff with ESPN fantasy football leagues"""
 
+    def __init__(self):
+        pass
+
     def print_records(self, league_id, year):
         """
         Print All Play record, True record, and Head to Head Every Week records for every team
