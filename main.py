@@ -1,19 +1,24 @@
 import os
 
+from record import Record
 from person import Person
 
 from espn_api.football import League
+# I'm worried that python-fire isn't really being super actively maintained by Google anymore
+# but goddamn is it convenient for making CLIs (see https://github.com/google/python-fire)
+import fire
 
 # This function smells bad and is ugly
 # There's definitely a better way to initialize all the records without having it
-# literally just be a function in main.py
+# straight up just be a function in main.py
 def initialize_people(league):
+    score_map = {}
     person_map = {}
     for team in league.teams:
         score_map[team.owner] = team.scores
         person_map[team.owner] = Person(team.owner, actual_record=Record(wins=team.wins, losses=team.losses, ties=team.ties))
 
-    for i in range(0, week):
+    for i in range(0, league.nfl_week - 1):
         for name1, score1 in score_map.items():
             wins_this_week = 0
             losses_this_week = 0
@@ -41,58 +46,49 @@ def initialize_people(league):
 
     return [person for person in person_map.values()]
 
-if __name__ == "__main__":
-    # Shawnee
-    # league_id = 480774
 
-    # Bloomberg
-    # league_id = 337085
+class LeagueCalculator(object):
+    """Does stuff with ESPN fantasy football leagues"""
 
-    # Rutgers
-    league_id = 834955
+    def print_records(self, league_id, year):
+        """
+        Print All Play record, True record, and Head to Head Every Week records for every team
+        :param league_id: The ID of the ESPN league; get it from the URL of your league
+        :param year: The year during which to calculate records
+        :returns: None
+        """
 
-    year = 2021
+        year = 2021
 
-    league = League(league_id=league_id, year=year, espn_s2=os.getenv("ESPN_S2", "").strip(), swid=os.getenv("SWID", "").strip())
+        league = League(league_id=league_id, year=year, espn_s2=os.getenv("ESPN_S2", "").strip(), swid=os.getenv("SWID", "").strip())
 
-    score_map = {}
+        score_map = {}
 
-    people = initialize_people(league)
+        people = initialize_people(league)
 
-    people.sort(reverse=True)
+        people.sort(reverse=True)
 
-    print("All Play Every Week")
-    for person in people:
-        print(f"{person.name}: {person.all_record}")
+        print("All Play Every Week")
+        for person in people:
+            print(f"{person.name}: {person.all_record}")
 
-    print("")
-    print("True Record")
-    print("If your total all play wins > all play losses in a week, that's a true win. "
-          "This is roughly equivalent to saying 'weeks you were in the top half of scorers'. "
-          "Your luck is the differential between your wins and your true wins.")
-    for person in people:
-        luck = person.actual_record.wins - person.true_record.wins
-        luck_sign = '+' if luck > 0 else ''
-        print(f"{person.name}: {person.true_record} (Luck: {luck_sign}{luck})")
-
-    print("")
-    print("Head to Head Every Week")
-    for person in people:
-        print(person.name)
-        person.print_h2h()
         print("")
+        print("True Record")
+        print("If your total all play wins > all play losses in a week, that's a true win. "
+            "This is roughly equivalent to saying 'weeks you were in the top half of scorers'. "
+            "Your luck is the differential between your wins and your true wins.")
+        for person in people:
+            luck = person.actual_record.wins - person.true_record.wins
+            luck_sign = '+' if luck > 0 else ''
+            print(f"{person.name}: {person.true_record} (Luck: {luck_sign}{luck})")
+
+        print("")
+        print("Head to Head Every Week")
+        for person in people:
+            print(person.name)
+            person.print_h2h()
+            print("")
 
 
 if __name__ == "__main__":
-    # Shawnee
-    # league_id = 480774
-
-    # Bloomberg
-    # league_id = 337085
-
-    # Rutgers
-    league_id = 834955
-
-    year = 2021
-
-    league = League(league_id=league_id, year=year, espn_s2=os.getenv("ESPN_S2"), swid=os.getenv("SWID"))
+    fire.Fire(LeagueCalculator)
