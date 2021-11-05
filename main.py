@@ -11,12 +11,15 @@ import fire
 # This function smells bad and is ugly
 # There's definitely a better way to initialize all the records without having it
 # straight up just be a function in main.py
-def initialize_people(league):
+def get_people(league: League):
     score_map = {}
     person_map = {}
     for team in league.teams:
         score_map[team.owner] = team.scores
-        person_map[team.owner] = Person(team.owner, actual_record=Record(wins=team.wins, losses=team.losses, ties=team.ties))
+        person_map[team.owner] = Person(
+            team.owner,
+            actual_record=Record(wins=team.wins, losses=team.losses, ties=team.ties)
+        )
 
     for i in range(0, league.nfl_week - 1):
         for name1, score1 in score_map.items():
@@ -51,9 +54,10 @@ class LeagueCalculator(object):
     """Does stuff with ESPN fantasy football leagues"""
 
     def __init__(self):
+        # One day...
         pass
 
-    def print_records(self, league_id, year):
+    def print_records(self, league_id: int, year: int) -> None:
         """
         Print All Play record, True record, and Head to Head Every Week records for every team
         :param league_id: The ID of the ESPN league; get it from the URL of your league
@@ -61,14 +65,13 @@ class LeagueCalculator(object):
         :returns: None
         """
 
-        year = 2021
-
-        league = League(league_id=league_id, year=year, espn_s2=os.getenv("ESPN_S2", "").strip(), swid=os.getenv("SWID", "").strip())
-
-        score_map = {}
-
-        people = initialize_people(league)
-
+        league = League(
+            league_id=league_id,
+            year=year,
+            espn_s2=os.getenv("ESPN_S2", "").strip(),
+            swid=os.getenv("SWID", "").strip()
+        )
+        people = get_people(league)
         people.sort(reverse=True)
 
         print("All Play Every Week")
