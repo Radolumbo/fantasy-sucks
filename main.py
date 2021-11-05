@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 from record import Record
 from person import Person
@@ -12,7 +11,7 @@ import fire
 # This function smells bad and is ugly
 # There's definitely a better way to initialize all the records without having it
 # straight up just be a function in main.py
-def get_people(league: League) -> List[Person]:
+def get_people(league: League) -> list[Person]:
     """
     Gets all the people in your league and populates their various records
     :param league: An espn_api League object
