@@ -58,8 +58,8 @@ class LeagueCalculator(object):
                 pass
 
             latest_week = league.nfl_week
-            # temporary hack
-            latest_week = len(league.teams[0].schedule) + 1
+            # temporary hack for when viewing historical info
+            # latest_week = len(league.teams[0].schedule) + 1
             alternate_record = self.alternate_schedule_record(target_person, person, latest_week - 1)
             print(f"{target_person.name} would be {alternate_record} with {person.name}'s schedule.")
 

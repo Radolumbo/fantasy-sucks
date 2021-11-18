@@ -52,9 +52,9 @@ def get_people(league: League) -> list[Person]:
     :param league: An espn_api League object
     :returns: list[Person]
     """
-    # latest_week = league.nfl_week
-    # temporary hack
-    latest_week = len(league.teams[0].schedule) + 1
+    latest_week = league.nfl_week
+    # temporary hack for when viewing historical info
+    # latest_week = len(league.teams[0].schedule) + 1
     person_map = {}
 
     # Initialize People from teams
