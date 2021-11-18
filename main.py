@@ -57,8 +57,35 @@ class LeagueCalculator(object):
             if person.name == target_person.name:
                 pass
 
-            alternate_record = self.alternate_schedule_record(target_person, person, league.nfl_week)
+            latest_week = league.nfl_week
+            # temporary hack
+            latest_week = len(league.teams[0].schedule) + 1
+            alternate_record = self.alternate_schedule_record(target_person, person, latest_week - 1)
             print(f"{target_person.name} would be {alternate_record} with {person.name}'s schedule.")
+
+    def print_true_records(self, league_id: int, year: int) -> None:
+        """
+        Print All Play record, True record, and Head to Head Every Week records for every team
+        :param league_id: The ID of the ESPN league; get it from the URL of your league
+        :param year: The year during which to calculate records
+        :returns: None
+        """
+
+        league = League(
+            league_id=league_id,
+            year=year,
+            espn_s2=os.getenv("ESPN_S2", "").strip(),
+            swid=os.getenv("SWID", "").strip()
+        )
+        people = get_people(league)
+        print("True Record")
+        print("If your total all play wins > all play losses in a week, that's a true win. "
+            "This is roughly equivalent to saying 'weeks you were in the top half of scorers'. "
+            "Your luck is the differential between your wins and your true wins.")
+        for person in people:
+            luck = person.actual_record.wins - person.true_record.wins
+            luck_sign = '+' if luck > 0 else ''
+            print(f"{person.name}: {person.true_record} (Luck: {luck_sign}{luck})")
 
 
 
@@ -84,14 +111,8 @@ class LeagueCalculator(object):
             print(f"{person.name}: {person.all_record}")
 
         print("")
-        print("True Record")
-        print("If your total all play wins > all play losses in a week, that's a true win. "
-            "This is roughly equivalent to saying 'weeks you were in the top half of scorers'. "
-            "Your luck is the differential between your wins and your true wins.")
-        for person in people:
-            luck = person.actual_record.wins - person.true_record.wins
-            luck_sign = '+' if luck > 0 else ''
-            print(f"{person.name}: {person.true_record} (Luck: {luck_sign}{luck})")
+        # Duplicatively makes another league
+        self.print_true_records(league_id, year)
 
         print("")
         print("Head to Head Every Week")
